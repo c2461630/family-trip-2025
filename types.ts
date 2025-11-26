@@ -1,3 +1,4 @@
+
 export enum ActivityType {
   Drive = 'Drive',
   Food = 'Food',
@@ -19,12 +20,19 @@ export interface Activity {
   }[];
 }
 
+export interface WeatherInfo {
+  type: 'sunny' | 'cloudy' | 'rain' | 'windy';
+  temp: string;
+  desc: string;
+}
+
 export interface DayPlan {
   id: number;
   date: string;
   weekday: string;
   route: string;
   theme: string;
+  weather: WeatherInfo;
   activities: Activity[];
 }
 
