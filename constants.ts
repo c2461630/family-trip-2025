@@ -1,3 +1,4 @@
+
 import { DayPlan, ActivityType, DeploymentStep } from './types';
 
 export const TRIP_DATA: DayPlan[] = [
@@ -7,6 +8,7 @@ export const TRIP_DATA: DayPlan[] = [
     weekday: "週三",
     route: "台南 ➔ 宜蘭",
     theme: "舒適移動，晚上泡湯消除疲勞",
+    weather: { type: 'rain', temp: "18-22°C", desc: "多雲短暫雨" },
     activities: [
       {
         time: "09:00",
@@ -19,7 +21,7 @@ export const TRIP_DATA: DayPlan[] = [
         title: "午餐時間",
         description: "建議在 石碇服務區 或 深坑老街 (吃豆腐) 休息用餐。",
         type: ActivityType.Food,
-        location: "深坑老街 / 石碇服務區"
+        location: "深坑老街"
       },
       {
         time: "14:30",
@@ -29,13 +31,15 @@ export const TRIP_DATA: DayPlan[] = [
         options: [
           { title: "張美阿嬤農場", description: "三星鄉｜目前最紅！穿浴衣餵水豚、笑笑羊，環境乾淨。" },
           { title: "蜡藝蠟筆城堡", description: "蘇澳｜雨天備案首選，有很多色彩DIY，小孩會玩瘋。" }
-        ]
+        ],
+        location: "宜蘭張美阿嬤農場" // 預設導航點
       },
       {
         time: "17:00",
         title: "飯店 Check-in",
         description: "建議住 礁溪 (泡溫泉) 或 宜蘭市/羅東。",
         type: ActivityType.Hotel,
+        location: "礁溪溫泉公園" // 示意導航點
       },
       {
         time: "18:30",
@@ -52,6 +56,7 @@ export const TRIP_DATA: DayPlan[] = [
     weekday: "週四",
     route: "宜蘭 ➔ 花蓮",
     theme: "體驗最美公路，抵達花蓮慢活",
+    weather: { type: 'cloudy', temp: "20-24°C", desc: "多雲時陰" },
     activities: [
       {
         time: "10:00",
@@ -64,14 +69,14 @@ export const TRIP_DATA: DayPlan[] = [
         title: "台泥 DAKA 園區",
         description: "星巴克、7-11休息。中間有音樂噴水池，整點會有水舞秀，小孩可以跑跑跳跳。",
         type: ActivityType.Rest,
-        location: "秀林鄉"
+        location: "台泥DAKA園區"
       },
       {
         time: "13:00",
         title: "午餐：佳興冰果室",
         description: "新城名店。檸檬汁必買，什錦麵很大碗適合分食。",
         type: ActivityType.Food,
-        location: "新城鄉"
+        location: "佳興冰果室"
       },
       {
         time: "14:30",
@@ -92,7 +97,7 @@ export const TRIP_DATA: DayPlan[] = [
         title: "晚餐：東大門夜市",
         description: "原住民一條街有很多特色料理。",
         type: ActivityType.Food,
-        location: "花蓮市"
+        location: "東大門夜市"
       }
     ]
   },
@@ -102,6 +107,7 @@ export const TRIP_DATA: DayPlan[] = [
     weekday: "週五",
     route: "花蓮深度遊",
     theme: "不用長途開車，選定一個區域玩整天",
+    weather: { type: 'sunny', temp: "21-25°C", desc: "舒適晴朗" },
     activities: [
       {
         time: "09:30",
@@ -111,7 +117,8 @@ export const TRIP_DATA: DayPlan[] = [
         options: [
           { title: "方案A：遠雄海洋公園", description: "遊樂園+水族館+纜車。適合玩一整天，看海豚海獅表演。" },
           { title: "方案B：自然休閒派", description: "早上：立川漁場(摸蜆仔) -> 午餐：炒蜆仔 -> 下午：星巴克洄瀾門市 / 知卡宣親水公園 / 新天堂樂園。" }
-        ]
+        ],
+        location: "遠雄海洋公園"
       },
       {
         time: "17:00",
@@ -124,7 +131,7 @@ export const TRIP_DATA: DayPlan[] = [
         title: "晚餐",
         description: "花蓮市區美食探險 (扁食、公正包子、炸彈蔥油餅)。",
         type: ActivityType.Food,
-        location: "花蓮市區"
+        location: "公正包子"
       }
     ]
   },
@@ -134,6 +141,7 @@ export const TRIP_DATA: DayPlan[] = [
     weekday: "週六",
     route: "花蓮 ➔ 台東池上",
     theme: "邊走邊玩台9線(山線)，最美田園風光",
+    weather: { type: 'sunny', temp: "22-26°C", desc: "陽光普照" },
     activities: [
       {
         time: "10:00",
@@ -146,21 +154,21 @@ export const TRIP_DATA: DayPlan[] = [
         title: "花蓮觀光糖廠 (光復糖廠)",
         description: "必吃紅豆鮮奶冰、買魚飼料餵超多錦鯉 (小朋友會在這裡卡關很久)。",
         type: ActivityType.Activity,
-        location: "光復鄉"
+        location: "光復糖廠"
       },
       {
         time: "13:00",
         title: "午餐時間",
         description: "大農大富附近的餐廳，或到瑞穗吃牛奶鍋。",
         type: ActivityType.Food,
-        location: "光復/瑞穗"
+        location: "瑞穗綠精靈牛奶鍋"
       },
       {
         time: "14:30",
         title: "大農大富平地森林園區",
         description: "騎腳踏車！全台最美龍貓森林隧道，路非常平，租電動車或親子車騎在樹林裡非常舒服。",
         type: ActivityType.Activity,
-        location: "光復鄉"
+        location: "大農大富平地森林園區"
       },
       {
         time: "16:30",
@@ -173,7 +181,7 @@ export const TRIP_DATA: DayPlan[] = [
         title: "飯店 Check-in & 晚餐",
         description: "享受池上的寧靜夜晚。",
         type: ActivityType.Hotel,
-        location: "池上/關山"
+        location: "池上火車站"
       }
     ]
   },
@@ -183,20 +191,21 @@ export const TRIP_DATA: DayPlan[] = [
     weekday: "週日",
     route: "台東 ➔ 台南",
     theme: "騎車逛伯朗大道，帶著滿足的心情回家",
+    weather: { type: 'sunny', temp: "23-27°C", desc: "晴朗溫暖" },
     activities: [
       {
         time: "09:00",
         title: "伯朗大道 / 天堂路",
         description: "租一台電動四輪車 (一家四口剛好)，去看金城武樹。早上的遊客少，空氣好。",
         type: ActivityType.Activity,
-        location: "池上鄉"
+        location: "伯朗大道"
       },
       {
         time: "12:00",
         title: "午餐：悟饕池上飯包",
         description: "文化故事館，可以在火車車廂裡吃飯盒，很有氣氛。",
         type: ActivityType.Food,
-        location: "池上鄉"
+        location: "悟饕池上飯包文化故事館"
       },
       {
         time: "13:30",
@@ -209,7 +218,7 @@ export const TRIP_DATA: DayPlan[] = [
         title: "休息點：大武之心南迴驛",
         description: "南迴公路上最新的休息站，有無敵海景，買點零食休息一下。",
         type: ActivityType.Rest,
-        location: "大武鄉"
+        location: "大武之心南迴驛"
       },
       {
         time: "18:00",
@@ -241,10 +250,10 @@ export const DEPLOYMENT_STEPS: DeploymentStep[] = [
   },
   {
     title: "5. 點擊 Deploy",
-    content: "點擊藍色的 'Deploy' 按鈕。Vercel 會開始自動建置你的網站，這大約需要 1-2 分鐘。看著它跑完進度條！"
+    content: "點擊藍色的 'Deploy' 按鈕。Vercel 會開始自動建置你的網站，這大約需要 1-2 分鐘。"
   },
   {
-    title: "6. 完成！",
-    content: "出現滿滿的彩帶畫面後，點擊預覽圖或 'Continue to Dashboard'。你會獲得一個類似 'family-trip-2024.vercel.app' 的網址。把這個網址傳到家人的 LINE 群組，大家就能隨時看行程囉！"
+    title: "6. 完成與故障排除 (重要！)",
+    content: "如果打開網頁出現「登入畫面 (Vercel Authentication)」，請這樣做：回到 Vercel 專案設定 -> Settings -> Deployment Protection -> 將 'Vercel Authentication' 設為 Disabled (關閉) -> 點擊 Save。這樣家人就可以直接看到網頁囉！"
   }
 ];
