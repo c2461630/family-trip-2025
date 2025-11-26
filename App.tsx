@@ -163,7 +163,7 @@ const DeploymentGuide = () => {
             <div>
               <h4 className="font-bold text-yellow-800 text-sm mb-1">手機瀏覽小技巧</h4>
               <p className="text-yellow-700 text-xs">
-                部署完成後，在手機瀏覽器打開網址，選擇「分享」>「加入主畫面」，就能像原生 APP 一樣使用了！
+                部署完成後，在手機瀏覽器打開網址，選擇「分享」&gt;「加入主畫面」，就能像原生 APP 一樣使用了！
               </p>
             </div>
           </div>
