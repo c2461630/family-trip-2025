@@ -1,247 +1,250 @@
-import { DaySchedule } from './types';
+import { DayPlan, ActivityType, DeploymentStep } from './types';
 
-export const ITINERARY_DATA: DaySchedule[] = [
+export const TRIP_DATA: DayPlan[] = [
   {
-    dayId: 1,
+    id: 1,
     date: "12/10",
     weekday: "週三",
     route: "台南 ➔ 宜蘭",
-    highlight: "舒適移動，晚上泡湯消除疲勞",
+    theme: "舒適移動，晚上泡湯消除疲勞",
     activities: [
       {
-        id: "d1-1",
         time: "09:00",
-        title: "出發",
+        title: "台南出發",
         description: "睡飽再出發，避開上班車潮。走國道3號接國道5號。",
-        type: "travel"
+        type: ActivityType.Drive,
       },
       {
-        id: "d1-2",
         time: "12:00",
-        title: "午餐點",
-        description: "建議在石碇服務區或深坑老街(吃豆腐)休息用餐。",
-        location: "深坑老街",
-        type: "food"
+        title: "午餐時間",
+        description: "建議在 石碇服務區 或 深坑老街 (吃豆腐) 休息用餐。",
+        type: ActivityType.Food,
+        location: "深坑老街 / 石碇服務區"
       },
       {
-        id: "d1-3",
         time: "14:30",
         title: "宜蘭親子熱點 (二選一)",
-        description: "依天氣與喜好選擇。",
-        type: "activity",
+        type: ActivityType.Activity,
+        description: "根據天氣或孩子喜好選擇一處遊玩。",
         options: [
-          {
-            id: "d1-opt-a",
-            time: "14:30",
-            title: "張美阿嬤農場",
-            description: "三星鄉。穿浴衣餵水豚、笑笑羊，環境很乾淨。",
-            location: "張美阿嬤農場",
-            type: "activity"
-          },
-          {
-            id: "d1-opt-b",
-            time: "14:30",
-            title: "蜡藝蠟筆城堡",
-            description: "蘇澳。雨天備案首選，有很多色彩DIY。",
-            location: "蜡藝蠟筆城堡",
-            type: "activity"
-          }
+          { title: "張美阿嬤農場", description: "三星鄉｜目前最紅！穿浴衣餵水豚、笑笑羊，環境乾淨。" },
+          { title: "蜡藝蠟筆城堡", description: "蘇澳｜雨天備案首選，有很多色彩DIY，小孩會玩瘋。" }
         ]
       },
       {
-        id: "d1-4",
         time: "17:00",
-        title: "入住與晚餐",
-        description: "建議住礁溪泡溫泉。晚餐可飯店內用或羅東夜市。",
-        tips: ["阿灶伯羊肉湯", "魏姐包心粉圓"],
-        location: "礁溪溫泉",
-        type: "hotel"
+        title: "飯店 Check-in",
+        description: "建議住 礁溪 (泡溫泉) 或 宜蘭市/羅東。",
+        type: ActivityType.Hotel,
+      },
+      {
+        time: "18:30",
+        title: "晚餐時光",
+        description: "飯店內用或羅東夜市 (阿灶伯羊肉湯、魏姐包心粉圓)。",
+        type: ActivityType.Food,
+        location: "羅東夜市"
       }
     ]
   },
   {
-    dayId: 2,
+    id: 2,
     date: "12/11",
     weekday: "週四",
     route: "宜蘭 ➔ 花蓮",
-    highlight: "體驗最美蘇花改，抵達花蓮慢活",
+    theme: "體驗最美公路，抵達花蓮慢活",
     activities: [
       {
-        id: "d2-1",
         time: "10:00",
-        title: "出發",
-        description: "走蘇花改 (台9線)。",
-        type: "travel"
+        title: "出發往花蓮",
+        description: "走蘇花改 (台9線)，欣賞沿途風景。",
+        type: ActivityType.Drive,
       },
       {
-        id: "d2-2",
         time: "11:00",
         title: "台泥 DAKA 園區",
-        description: "星巴克、7-11休息。整點有音樂水舞秀。",
-        location: "台泥 DAKA 園區",
-        type: "rest"
+        description: "星巴克、7-11休息。中間有音樂噴水池，整點會有水舞秀，小孩可以跑跑跳跳。",
+        type: ActivityType.Rest,
+        location: "秀林鄉"
       },
       {
-        id: "d2-3",
         time: "13:00",
-        title: "佳興冰果室",
-        description: "檸檬汁必買，什錦麵很大碗適合分食。",
-        location: "佳興冰果室",
-        type: "food"
+        title: "午餐：佳興冰果室",
+        description: "新城名店。檸檬汁必買，什錦麵很大碗適合分食。",
+        type: ActivityType.Food,
+        location: "新城鄉"
       },
       {
-        id: "d2-4",
         time: "14:30",
         title: "七星潭",
-        description: "海邊疊石頭、看戰機起降，享受單純快樂。",
-        location: "七星潭",
-        type: "activity"
+        description: "不用趕行程，就在海邊疊石頭、看戰機起降，這是小朋友最單純的快樂。",
+        type: ActivityType.Activity,
+        location: "七星潭風景區"
       },
       {
-        id: "d2-5",
         time: "16:30",
-        title: "Check-in & 晚餐",
-        description: "入住花蓮市區(連住兩晚)。晚餐去東大門夜市。",
-        tips: ["原住民一條街特色料理"],
-        location: "東大門夜市",
-        type: "hotel"
+        title: "飯店 Check-in",
+        description: "入住花蓮市區。建議續住兩晚(Day 2, 3)，減少換飯店的麻煩。",
+        type: ActivityType.Hotel,
+        location: "花蓮市區"
+      },
+      {
+        time: "18:00",
+        title: "晚餐：東大門夜市",
+        description: "原住民一條街有很多特色料理。",
+        type: ActivityType.Food,
+        location: "花蓮市"
       }
     ]
   },
   {
-    dayId: 3,
+    id: 3,
     date: "12/12",
     weekday: "週五",
     route: "花蓮深度遊",
-    highlight: "不用長途開車，孩子的主場",
+    theme: "不用長途開車，選定一個區域玩整天",
     activities: [
       {
-        id: "d3-1",
-        time: "全日",
-        title: "行程方案選擇",
-        description: "選擇一個區域玩整天。",
-        type: "activity",
+        time: "09:30",
+        title: "全日活動 (二選一)",
+        type: ActivityType.Activity,
+        description: "今天是以孩子為主的行程，選擇一個方案輕鬆玩。",
         options: [
-          {
-            id: "d3-opt-a",
-            time: "方案 A",
-            title: "遠雄海洋公園",
-            description: "遊樂園+水族館+纜車，看海豚海獅表演。",
-            location: "遠雄海洋公園",
-            type: "activity"
-          },
-          {
-            id: "d3-opt-b",
-            time: "方案 B",
-            title: "自然休閒派",
-            description: "立川漁場摸蜆仔 -> 星巴克洄瀾門市 -> 知卡宣親水公園/新天堂樂園。",
-            location: "立川漁場",
-            type: "activity"
-          }
+          { title: "方案A：遠雄海洋公園", description: "遊樂園+水族館+纜車。適合玩一整天，看海豚海獅表演。" },
+          { title: "方案B：自然休閒派", description: "早上：立川漁場(摸蜆仔) -> 午餐：炒蜆仔 -> 下午：星巴克洄瀾門市 / 知卡宣親水公園 / 新天堂樂園。" }
         ]
       },
       {
-        id: "d3-2",
-        time: "18:00",
-        title: "續住花蓮市區",
-        description: "晚上輕鬆休息，準備明日往南。",
-        type: "hotel"
+        time: "17:00",
+        title: "返回飯店休息",
+        description: "玩了一整天，稍微休息一下。",
+        type: ActivityType.Rest,
+      },
+      {
+        time: "18:30",
+        title: "晚餐",
+        description: "花蓮市區美食探險 (扁食、公正包子、炸彈蔥油餅)。",
+        type: ActivityType.Food,
+        location: "花蓮市區"
       }
     ]
   },
   {
-    dayId: 4,
+    id: 4,
     date: "12/13",
     weekday: "週六",
     route: "花蓮 ➔ 台東池上",
-    highlight: "花蓮縱谷與最美田園風光",
+    theme: "邊走邊玩台9線(山線)，最美田園風光",
     activities: [
       {
-        id: "d4-1",
         time: "10:00",
-        title: "出發往南",
-        description: "離開花蓮市，走山線(台9線)。",
-        type: "travel"
+        title: "離開花蓮市",
+        description: "往南走，沿著花東縱谷前進。",
+        type: ActivityType.Drive,
       },
       {
-        id: "d4-2",
         time: "11:00",
-        title: "花蓮觀光糖廠",
-        description: "吃紅豆鮮奶冰、餵魚 (小朋友最愛)。",
-        location: "花蓮觀光糖廠",
-        type: "activity"
+        title: "花蓮觀光糖廠 (光復糖廠)",
+        description: "必吃紅豆鮮奶冰、買魚飼料餵超多錦鯉 (小朋友會在這裡卡關很久)。",
+        type: ActivityType.Activity,
+        location: "光復鄉"
       },
       {
-        id: "d4-3",
         time: "13:00",
-        title: "午餐",
-        description: "大農大富附近餐廳，或瑞穗吃牛奶鍋。",
-        type: "food"
+        title: "午餐時間",
+        description: "大農大富附近的餐廳，或到瑞穗吃牛奶鍋。",
+        type: ActivityType.Food,
+        location: "光復/瑞穗"
       },
       {
-        id: "d4-4",
         time: "14:30",
-        title: "大農大富平地森林",
-        description: "全台最美龍貓森林隧道，租電動車騎車。",
-        location: "大農大富平地森林園區",
-        type: "activity"
+        title: "大農大富平地森林園區",
+        description: "騎腳踏車！全台最美龍貓森林隧道，路非常平，租電動車或親子車騎在樹林裡非常舒服。",
+        type: ActivityType.Activity,
+        location: "光復鄉"
       },
       {
-        id: "d4-5",
         time: "16:30",
-        title: "前往池上",
-        description: "今晚住池上或關山，縮短明日車程。",
-        location: "池上鄉",
-        type: "hotel"
+        title: "前往台東池上",
+        description: "移動時間約 1.5 小時。今晚建議住池上或關山，縮短隔天回程車距。",
+        type: ActivityType.Drive,
+      },
+      {
+        time: "18:00",
+        title: "飯店 Check-in & 晚餐",
+        description: "享受池上的寧靜夜晚。",
+        type: ActivityType.Hotel,
+        location: "池上/關山"
       }
     ]
   },
   {
-    dayId: 5,
+    id: 5,
     date: "12/14",
     weekday: "週日",
     route: "台東 ➔ 台南",
-    highlight: "伯朗大道騎車，帶著滿足的心情回家",
+    theme: "騎車逛伯朗大道，帶著滿足的心情回家",
     activities: [
       {
-        id: "d5-1",
         time: "09:00",
         title: "伯朗大道 / 天堂路",
-        description: "租電動四輪車看金城武樹。早上空氣最好。",
-        location: "伯朗大道",
-        type: "activity"
+        description: "租一台電動四輪車 (一家四口剛好)，去看金城武樹。早上的遊客少，空氣好。",
+        type: ActivityType.Activity,
+        location: "池上鄉"
       },
       {
-        id: "d5-2",
         time: "12:00",
-        title: "午餐",
-        description: "悟饕池上飯包文化故事館 (在火車車廂用餐)。",
-        location: "悟饕池上飯包文化故事館",
-        type: "food"
+        title: "午餐：悟饕池上飯包",
+        description: "文化故事館，可以在火車車廂裡吃飯盒，很有氣氛。",
+        type: ActivityType.Food,
+        location: "池上鄉"
       },
       {
-        id: "d5-3",
         time: "13:30",
-        title: "回程",
-        description: "開始往南開，經南迴公路。",
-        type: "travel"
+        title: "回程：往南開",
+        description: "經台9線接南迴公路。",
+        type: ActivityType.Drive,
       },
       {
-        id: "d5-4",
         time: "15:30",
-        title: "大武之心南迴驛",
-        description: "最新海景休息站。",
-        location: "大武之心南迴驛",
-        type: "rest"
+        title: "休息點：大武之心南迴驛",
+        description: "南迴公路上最新的休息站，有無敵海景，買點零食休息一下。",
+        type: ActivityType.Rest,
+        location: "大武鄉"
       },
       {
-        id: "d5-5",
         time: "18:00",
         title: "抵達台南",
-        description: "趕上晚餐時間，旅程結束。",
-        location: "台南",
-        type: "travel"
+        description: "剛好趕上晚餐時間，甜蜜的家！",
+        type: ActivityType.Hotel,
+        location: "台南"
       }
     ]
+  }
+];
+
+export const DEPLOYMENT_STEPS: DeploymentStep[] = [
+  {
+    title: "1. 註冊 Vercel 帳號",
+    content: "前往 vercel.com，點擊 'Sign Up'。強烈建議選擇 'Continue with GitHub'，這樣可以直接連結你的儲存庫，最方便。"
+  },
+  {
+    title: "2. 新增專案 (Add New Project)",
+    content: "登入後，在 Dashboard 頁面點擊右側的 'Add New...' 按鈕，然後選擇 'Project'。"
+  },
+  {
+    title: "3. 匯入 Git 儲存庫",
+    content: "你會看到 'Import Git Repository' 的列表。找到你的專案 'family-trip-2024'，點擊旁邊的 'Import' 按鈕。"
+  },
+  {
+    title: "4. 設定專案 (Configure Project)",
+    content: "Framework Preset (框架預設值)：Vercel 通常會自動偵測。如果沒有，請選擇 'Create React App' 或 'Vite' (因為我們是用 React)。Root Directory 保持預設即可。"
+  },
+  {
+    title: "5. 點擊 Deploy",
+    content: "點擊藍色的 'Deploy' 按鈕。Vercel 會開始自動建置你的網站，這大約需要 1-2 分鐘。看著它跑完進度條！"
+  },
+  {
+    title: "6. 完成！",
+    content: "出現滿滿的彩帶畫面後，點擊預覽圖或 'Continue to Dashboard'。你會獲得一個類似 'family-trip-2024.vercel.app' 的網址。把這個網址傳到家人的 LINE 群組，大家就能隨時看行程囉！"
   }
 ];
