@@ -1,4 +1,8 @@
 
+// 告訴 TypeScript 編譯器忽略這些模組的檢查 (因為我們是透過 index.html 的 CDN 載入的)
+declare module 'firebase/app';
+declare module 'firebase/firestore';
+
 export enum ActivityType {
   Drive = 'Drive',
   Food = 'Food',
@@ -39,4 +43,14 @@ export interface DayPlan {
 export interface DeploymentStep {
   title: string;
   content: string;
+}
+
+export interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  category: 'food' | 'transport' | 'stay' | 'play' | 'other';
+  payer: string;
+  date: string;
+  dateTimestamp?: number; // 新增此欄位以支援排序
 }
