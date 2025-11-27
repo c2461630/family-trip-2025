@@ -1,12 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MapPin, Coffee, Car, Moon, Camera, Info, ExternalLink, 
   ChevronDown, ChevronUp, CheckCircle, Smartphone, Navigation,
-  Sun, Cloud, CloudRain, Wind
+  Sun, Cloud, CloudRain, Wind, Plus, Trash2, Wallet, PieChart,
+  CloudLightning, WifiOff
 } from 'lucide-react';
-import { TRIP_DATA, DEPLOYMENT_STEPS } from './constants';
-import { Activity, ActivityType, DayPlan, WeatherInfo } from './types';
+import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG } from './constants';
+import { Activity, ActivityType, DayPlan, WeatherInfo, Expense } from './types';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+
+// --- Icons Components ---
 
 const ActivityIcon = ({ type }: { type: ActivityType }) => {
   switch (type) {
@@ -39,6 +44,8 @@ const WeatherIcon = ({ type }: { type: WeatherInfo['type'] }) => {
       return <Sun className="w-6 h-6 text-yellow-400" />;
   }
 };
+
+// --- Sub Components ---
 
 const ActivityItem: React.FC<{ activity: Activity; isLast: boolean }> = ({ activity, isLast }) => {
   const openMap = (location: string) => {
@@ -223,14 +230,261 @@ const DeploymentGuide = () => {
   );
 };
 
+// --- Expense Tracker Component ---
+
+const ExpenseTracker = () => {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [newItem, setNewItem] = useState({ title: '', amount: '', category: 'food', payer: '爸爸' });
+  const [isFirebaseMode, setIsFirebaseMode] = useState(false);
+  const [db, setDb] = useState<any>(null);
+
+  // Initialize Data Source (Firebase OR LocalStorage)
+  useEffect(() => {
+    // Check if Firebase config is present and valid
+    if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) {
+      try {
+        const app = initializeApp(FIREBASE_CONFIG);
+        const firestore = getFirestore(app);
+        setDb(firestore);
+        setIsFirebaseMode(true);
+
+        // Subscribe to real-time updates
+        const q = query(collection(firestore, "expenses"), orderBy("dateTimestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const loadedExpenses: Expense[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          } as Expense));
+          setExpenses(loadedExpenses);
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Firebase init failed:", error);
+        // Fallback to local storage if init fails
+        loadFromLocal();
+      }
+    } else {
+      loadFromLocal();
+    }
+  }, []);
+
+  const loadFromLocal = () => {
+    setIsFirebaseMode(false);
+    const saved = localStorage.getItem('trip_expenses');
+    if (saved) {
+      setExpenses(JSON.parse(saved));
+    }
+  };
+
+  const addExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newItem.title || !newItem.amount) return;
+
+    const expenseData = {
+      title: newItem.title,
+      amount: Number(newItem.amount),
+      category: newItem.category,
+      payer: newItem.payer,
+      date: new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }),
+      dateTimestamp: Date.now() // for sorting
+    };
+
+    if (isFirebaseMode && db) {
+      // Add to Cloud
+      await addDoc(collection(db, "expenses"), expenseData);
+    } else {
+      // Add to Local
+      const newExpense = { ...expenseData, id: Date.now().toString() } as Expense;
+      const updated = [newExpense, ...expenses];
+      setExpenses(updated);
+      localStorage.setItem('trip_expenses', JSON.stringify(updated));
+    }
+
+    setNewItem({ title: '', amount: '', category: 'food', payer: '爸爸' });
+  };
+
+  const removeExpense = async (id: string) => {
+    if (!confirm('確定要刪除這筆款項嗎？')) return;
+
+    if (isFirebaseMode && db) {
+      // Delete from Cloud
+      await deleteDoc(doc(db, "expenses", id));
+    } else {
+      // Delete from Local
+      const updated = expenses.filter(ex => ex.id !== id);
+      setExpenses(updated);
+      localStorage.setItem('trip_expenses', JSON.stringify(updated));
+    }
+  };
+
+  const totalAmount = expenses.reduce((sum, item) => sum + item.amount, 0);
+
+  const getCategoryLabel = (cat: string) => {
+    const map: Record<string, string> = { food: '餐飲', transport: '交通', stay: '住宿', play: '娛樂', other: '其他' };
+    return map[cat] || cat;
+  };
+
+  const getCategoryColor = (cat: string) => {
+    const map: Record<string, string> = { 
+      food: 'bg-orange-100 text-orange-700', 
+      transport: 'bg-blue-100 text-blue-700', 
+      stay: 'bg-indigo-100 text-indigo-700', 
+      play: 'bg-green-100 text-green-700', 
+      other: 'bg-gray-100 text-gray-700' 
+    };
+    return map[cat] || 'bg-gray-100';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Card */}
+      <div className={`rounded-2xl p-6 text-white shadow-lg transition-colors ${isFirebaseMode ? 'bg-gradient-to-r from-orange-500 to-pink-600' : 'bg-gradient-to-r from-emerald-500 to-teal-600'}`}>
+        <div className="flex justify-between items-start mb-1">
+          <h2 className="text-lg font-medium opacity-90 flex items-center gap-2">
+            <Wallet className="w-5 h-5" />
+            目前總花費
+          </h2>
+          {isFirebaseMode ? (
+            <span className="flex items-center gap-1 text-xs bg-black/20 px-2 py-1 rounded-full">
+              <CloudLightning className="w-3 h-3" /> 已雲端同步
+            </span>
+          ) : (
+             <span className="flex items-center gap-1 text-xs bg-black/20 px-2 py-1 rounded-full">
+              <WifiOff className="w-3 h-3" /> 僅本機儲存
+            </span>
+          )}
+        </div>
+        <div className="text-4xl font-bold">
+          ${totalAmount.toLocaleString()}
+        </div>
+        {!isFirebaseMode && (
+          <div className="mt-2 text-xs opacity-75">
+            設定 Firebase 可開啟多人同步 (詳見教學)
+          </div>
+        )}
+      </div>
+
+      {/* Input Form */}
+      <form onSubmit={addExpense} className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <Plus className="w-4 h-4 bg-gray-900 text-white rounded-full p-0.5" />
+          新增款項
+        </h3>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="col-span-2">
+            <input
+              type="text"
+              placeholder="項目名稱 (例如: 午餐)"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              value={newItem.title}
+              onChange={e => setNewItem({...newItem, title: e.target.value})}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="number"
+              placeholder="金額"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              value={newItem.amount}
+              onChange={e => setNewItem({...newItem, amount: e.target.value})}
+              required
+            />
+          </div>
+          <div>
+            <select
+              className="w-full p-2 border border-gray-300 rounded-lg bg-white outline-none"
+              value={newItem.payer}
+              onChange={e => setNewItem({...newItem, payer: e.target.value})}
+            >
+              <option value="爸爸">爸爸</option>
+              <option value="媽媽">媽媽</option>
+              <option value="公費">公費</option>
+            </select>
+          </div>
+          <div className="col-span-2 flex gap-2 overflow-x-auto pb-1">
+            {['food', 'transport', 'stay', 'play', 'other'].map(cat => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setNewItem({...newItem, category: cat})}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                  newItem.category === cat 
+                    ? 'bg-gray-800 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {getCategoryLabel(cat)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button 
+          type="submit" 
+          className="w-full bg-gray-900 hover:bg-black text-white py-2.5 rounded-lg font-medium transition-colors active:scale-[0.98]"
+        >
+          新增紀錄
+        </button>
+      </form>
+
+      {/* Expense List */}
+      <div className="space-y-3">
+        <h3 className="font-bold text-gray-700 px-1">消費紀錄</h3>
+        {expenses.length === 0 ? (
+          <div className="text-center py-8 text-gray-400 bg-white rounded-xl border border-dashed border-gray-300">
+            <PieChart className="w-12 h-12 mx-auto mb-2 opacity-20" />
+            <p className="text-sm">目前還沒有記帳資料</p>
+          </div>
+        ) : (
+          expenses.map((expense) => (
+            <div key={expense.id} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getCategoryColor(expense.category)}`}>
+                  {expense.category === 'food' && <Coffee className="w-5 h-5" />}
+                  {expense.category === 'transport' && <Car className="w-5 h-5" />}
+                  {expense.category === 'stay' && <Moon className="w-5 h-5" />}
+                  {expense.category === 'play' && <Camera className="w-5 h-5" />}
+                  {expense.category === 'other' && <Wallet className="w-5 h-5" />}
+                </div>
+                <div>
+                  <div className="font-bold text-gray-900">{expense.title}</div>
+                  <div className="text-xs text-gray-500 flex gap-2">
+                    <span>{expense.date}</span>
+                    <span>•</span>
+                    <span>{expense.payer}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-gray-900 font-mono text-lg">
+                  ${expense.amount.toLocaleString()}
+                </span>
+                <button 
+                  onClick={() => removeExpense(expense.id)}
+                  className="text-gray-300 hover:text-red-500 p-1"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- Main App Component ---
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'itinerary' | 'deploy'>('itinerary');
+  const [activeTab, setActiveTab] = useState<'itinerary' | 'expense' | 'deploy'>('itinerary');
 
   return (
     <div className="min-h-screen pb-12 max-w-md mx-auto sm:max-w-2xl bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4">
-        <div className="flex justify-between items-center mb-4">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-bold text-gray-900 tracking-tight">
             Family Trip 2024
           </h1>
@@ -249,24 +503,34 @@ export default function App() {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            行程表
+            行程
+          </button>
+          <button
+            onClick={() => setActiveTab('expense')}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              activeTab === 'expense' 
+                ? 'bg-white text-emerald-700 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            記帳
           </button>
           <button
             onClick={() => setActiveTab('deploy')}
             className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
               activeTab === 'deploy' 
-                ? 'bg-white text-green-700 shadow-sm' 
+                ? 'bg-white text-blue-700 shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            部署教學
+            教學
           </button>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="px-4 py-6">
-        {activeTab === 'itinerary' ? (
+        {activeTab === 'itinerary' && (
           <div className="animate-fade-in">
             <div className="mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
               <div className="flex items-start justify-between">
@@ -293,7 +557,15 @@ export default function App() {
               </div>
             </div>
           </div>
-        ) : (
+        )}
+        
+        {activeTab === 'expense' && (
+          <div className="animate-fade-in">
+            <ExpenseTracker />
+          </div>
+        )}
+
+        {activeTab === 'deploy' && (
           <div className="animate-fade-in">
             <DeploymentGuide />
           </div>
