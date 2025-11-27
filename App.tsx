@@ -8,7 +8,9 @@ import {
 } from 'lucide-react';
 import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG } from './constants';
 import { Activity, ActivityType, DayPlan, WeatherInfo, Expense } from './types';
+// @ts-ignore
 import { initializeApp } from 'firebase/app';
+// @ts-ignore
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 
 // --- Icons Components ---
