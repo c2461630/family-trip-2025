@@ -9,10 +9,9 @@ import {
 import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG } from './constants';
 import { Activity, ActivityType, DayPlan, WeatherInfo, Expense } from './types';
 
-// @ts-ignore
-import { initializeApp } from 'firebase/app';
-// @ts-ignore
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+// We will load these dynamically to avoid build errors
+// import { initializeApp } from 'firebase/app';
+// import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 
 // --- Icons Components ---
 
@@ -239,35 +238,47 @@ const ExpenseTracker = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [newItem, setNewItem] = useState({ title: '', amount: '', category: 'food', payer: '爸爸' });
   const [isFirebaseMode, setIsFirebaseMode] = useState(false);
-  const [db, setDb] = useState<any>(null);
+  // Store Firebase functions in ref or state to use them later
+  const [fbFunctions, setFbFunctions] = useState<any>(null);
 
   // Initialize Data Source (Firebase OR LocalStorage)
   useEffect(() => {
     // Check if Firebase config is present and valid
     if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) {
-      try {
-        const app = initializeApp(FIREBASE_CONFIG);
-        const firestore = getFirestore(app);
-        setDb(firestore);
-        setIsFirebaseMode(true);
+      const initFirebase = async () => {
+        try {
+          // DYNAMIC IMPORT: This prevents build tools from failing
+          // @ts-ignore
+          const { initializeApp } = await import('firebase/app');
+          // @ts-ignore
+          const { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } = await import('firebase/firestore');
 
-        // Subscribe to real-time updates
-        const q = query(collection(firestore, "expenses"), orderBy("dateTimestamp", "desc"));
-        // IMPORTANT: Explicitly typed snapshot as any to avoid TS errors in strict mode
-        const unsubscribe = onSnapshot(q, (snapshot: any) => {
-          const loadedExpenses: Expense[] = snapshot.docs.map((doc: any) => ({
-            id: doc.id,
-            ...doc.data()
-          } as Expense));
-          setExpenses(loadedExpenses);
-        });
+          const app = initializeApp(FIREBASE_CONFIG);
+          const firestore = getFirestore(app);
+          
+          setFbFunctions({ db: firestore, collection, addDoc, deleteDoc, doc });
+          setIsFirebaseMode(true);
 
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Firebase init failed:", error);
-        // Fallback to local storage if init fails
-        loadFromLocal();
-      }
+          // Subscribe to real-time updates
+          const q = query(collection(firestore, "expenses"), orderBy("dateTimestamp", "desc"));
+          
+          // @ts-ignore
+          const unsubscribe = onSnapshot(q, (snapshot: any) => {
+            const loadedExpenses: Expense[] = snapshot.docs.map((doc: any) => ({
+              id: doc.id,
+              ...doc.data()
+            } as Expense));
+            setExpenses(loadedExpenses);
+          });
+
+          return () => unsubscribe();
+        } catch (error) {
+          console.error("Firebase init failed or modules not found:", error);
+          loadFromLocal();
+        }
+      };
+      
+      initFirebase();
     } else {
       loadFromLocal();
     }
@@ -294,9 +305,9 @@ const ExpenseTracker = () => {
       dateTimestamp: Date.now() // for sorting
     };
 
-    if (isFirebaseMode && db) {
+    if (isFirebaseMode && fbFunctions) {
       // Add to Cloud
-      await addDoc(collection(db, "expenses"), expenseData);
+      await fbFunctions.addDoc(fbFunctions.collection(fbFunctions.db, "expenses"), expenseData);
     } else {
       // Add to Local
       const newExpense = { ...expenseData, id: Date.now().toString() } as Expense;
@@ -311,9 +322,9 @@ const ExpenseTracker = () => {
   const removeExpense = async (id: string) => {
     if (!confirm('確定要刪除這筆款項嗎？')) return;
 
-    if (isFirebaseMode && db) {
+    if (isFirebaseMode && fbFunctions) {
       // Delete from Cloud
-      await deleteDoc(doc(db, "expenses", id));
+      await fbFunctions.deleteDoc(fbFunctions.doc(fbFunctions.db, "expenses", id));
     } else {
       // Delete from Local
       const updated = expenses.filter(ex => ex.id !== id);
