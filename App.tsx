@@ -250,8 +250,9 @@ const ExpenseTracker = () => {
 
         // Subscribe to real-time updates
         const q = query(collection(firestore, "expenses"), orderBy("dateTimestamp", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const loadedExpenses: Expense[] = snapshot.docs.map(doc => ({
+        // IMPORTANT: Added ': any' to snapshot to fix TypeScript build error
+        const unsubscribe = onSnapshot(q, (snapshot: any) => {
+          const loadedExpenses: Expense[] = snapshot.docs.map((doc: any) => ({
             id: doc.id,
             ...doc.data()
           } as Expense));
@@ -484,7 +485,7 @@ export default function App() {
     <div className="min-h-screen pb-12 max-w-md mx-auto sm:max-w-2xl bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-start mb-3">
           <h1 className="text-xl font-bold text-gray-900 tracking-tight">
             Family Trip 2024
           </h1>
