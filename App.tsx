@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   MapPin, Coffee, Car, Moon, Camera, Info, ExternalLink, 
   ChevronDown, ChevronUp, CheckCircle, Smartphone, Navigation,
@@ -243,6 +243,9 @@ const ExpenseTracker = () => {
 
   // Initialize Data Source (Firebase OR LocalStorage)
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let isMounted = true;
+
     // Check if Firebase config is present and valid
     if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId) {
       const initFirebase = async () => {
@@ -252,6 +255,9 @@ const ExpenseTracker = () => {
           const { initializeApp } = await import('firebase/app');
           // @ts-ignore
           const { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } = await import('firebase/firestore');
+
+          // Prevent race condition if component unmounted
+          if (!isMounted) return;
 
           const app = initializeApp(FIREBASE_CONFIG);
           const firestore = getFirestore(app);
@@ -263,18 +269,17 @@ const ExpenseTracker = () => {
           const q = query(collection(firestore, "expenses"), orderBy("dateTimestamp", "desc"));
           
           // @ts-ignore
-          const unsubscribe = onSnapshot(q, (snapshot: any) => {
+          unsubscribe = onSnapshot(q, (snapshot: any) => {
+            if (!isMounted) return;
             const loadedExpenses: Expense[] = snapshot.docs.map((doc: any) => ({
               id: doc.id,
               ...doc.data()
             } as Expense));
             setExpenses(loadedExpenses);
           });
-
-          return () => unsubscribe();
         } catch (error) {
           console.error("Firebase init failed or modules not found:", error);
-          loadFromLocal();
+          if (isMounted) loadFromLocal();
         }
       };
       
@@ -282,6 +287,13 @@ const ExpenseTracker = () => {
     } else {
       loadFromLocal();
     }
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const loadFromLocal = () => {
@@ -361,7 +373,7 @@ const ExpenseTracker = () => {
             目前總花費
           </h2>
           {isFirebaseMode ? (
-            <span className="flex items-center gap-1 text-xs bg-black/20 px-2 py-1 rounded-full">
+            <span className="flex items-center gap-1 text-xs bg-black/20 px-2 py-1 rounded-full animate-pulse">
               <CloudLightning className="w-3 h-3" /> 已雲端同步
             </span>
           ) : (
