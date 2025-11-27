@@ -48,5 +48,5 @@ export interface Expense {
   category: 'food' | 'transport' | 'stay' | 'play' | 'other';
   payer: string;
   date: string;
-  dateTimestamp?: number; // 新增此欄位以支援排序
+  dateTimestamp?: number; // 用於排序
 }
