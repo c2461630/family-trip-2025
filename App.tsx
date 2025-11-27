@@ -4,14 +4,14 @@ import {
   MapPin, Coffee, Car, Moon, Camera, Info, ExternalLink, 
   ChevronDown, ChevronUp, CheckCircle, Smartphone, Navigation,
   Sun, Cloud, CloudRain, Wind, Plus, Trash2, Wallet, PieChart,
-  CloudLightning, WifiOff
+  CloudLightning, WifiOff, Pencil, Save, X
 } from 'lucide-react';
 import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG } from './constants';
 import { Activity, ActivityType, DayPlan, WeatherInfo, Expense } from './types';
 
 // We will load these dynamically to avoid build errors
 // import { initializeApp } from 'firebase/app';
-// import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+// import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, updateDoc } from 'firebase/firestore';
 
 // --- Icons Components ---
 
@@ -238,8 +238,11 @@ const ExpenseTracker = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [newItem, setNewItem] = useState({ title: '', amount: '', category: 'food', payer: '爸爸' });
   const [isFirebaseMode, setIsFirebaseMode] = useState(false);
-  // Store Firebase functions in ref or state to use them later
   const [fbFunctions, setFbFunctions] = useState<any>(null);
+
+  // Edit Mode States
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Expense>>({});
 
   // Initialize Data Source (Firebase OR LocalStorage)
   useEffect(() => {
@@ -254,7 +257,7 @@ const ExpenseTracker = () => {
           // @ts-ignore
           const { initializeApp } = await import('firebase/app');
           // @ts-ignore
-          const { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } = await import('firebase/firestore');
+          const { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, updateDoc } = await import('firebase/firestore');
 
           // Prevent race condition if component unmounted
           if (!isMounted) return;
@@ -262,7 +265,7 @@ const ExpenseTracker = () => {
           const app = initializeApp(FIREBASE_CONFIG);
           const firestore = getFirestore(app);
           
-          setFbFunctions({ db: firestore, collection, addDoc, deleteDoc, doc });
+          setFbFunctions({ db: firestore, collection, addDoc, deleteDoc, doc, updateDoc });
           setIsFirebaseMode(true);
 
           // Subscribe to real-time updates
@@ -343,6 +346,44 @@ const ExpenseTracker = () => {
       setExpenses(updated);
       localStorage.setItem('trip_expenses', JSON.stringify(updated));
     }
+  };
+
+  // --- Edit Functions ---
+
+  const startEdit = (expense: Expense) => {
+    setEditingId(expense.id);
+    setEditForm({ ...expense });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const saveEdit = async (id: string) => {
+    if (!editForm.title || !editForm.amount) return;
+
+    const updatedData = {
+      title: editForm.title,
+      amount: Number(editForm.amount),
+      category: editForm.category,
+      payer: editForm.payer,
+    };
+
+    if (isFirebaseMode && fbFunctions) {
+      // Update Cloud
+      const docRef = fbFunctions.doc(fbFunctions.db, "expenses", id);
+      await fbFunctions.updateDoc(docRef, updatedData);
+    } else {
+      // Update Local
+      const updated = expenses.map(ex => 
+        ex.id === id ? { ...ex, ...updatedData } : ex
+      );
+      setExpenses(updated);
+      localStorage.setItem('trip_expenses', JSON.stringify(updated));
+    }
+
+    setEditingId(null);
   };
 
   const totalAmount = expenses.reduce((sum, item) => sum + item.amount, 0);
@@ -465,35 +506,114 @@ const ExpenseTracker = () => {
           </div>
         ) : (
           expenses.map((expense) => (
-            <div key={expense.id} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getCategoryColor(expense.category)}`}>
-                  {expense.category === 'food' && <Coffee className="w-5 h-5" />}
-                  {expense.category === 'transport' && <Car className="w-5 h-5" />}
-                  {expense.category === 'stay' && <Moon className="w-5 h-5" />}
-                  {expense.category === 'play' && <Camera className="w-5 h-5" />}
-                  {expense.category === 'other' && <Wallet className="w-5 h-5" />}
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">{expense.title}</div>
-                  <div className="text-xs text-gray-500 flex gap-2">
-                    <span>{expense.date}</span>
-                    <span>•</span>
-                    <span>{expense.payer}</span>
+            <div 
+              key={expense.id} 
+              className={`p-3 rounded-xl shadow-sm border transition-all ${
+                editingId === expense.id 
+                  ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-300' 
+                  : 'bg-white border-gray-100'
+              }`}
+            >
+              {editingId === expense.id ? (
+                // --- Edit Mode ---
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-blue-800 font-bold text-sm">
+                    <span>編輯項目</span>
+                    <button onClick={cancelEdit} className="text-gray-400 hover:text-gray-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="text" 
+                      value={editForm.title} 
+                      onChange={e => setEditForm({...editForm, title: e.target.value})}
+                      className="col-span-2 p-2 border border-blue-200 rounded text-sm focus:outline-none focus:border-blue-400"
+                      placeholder="項目名稱"
+                    />
+                    <input 
+                      type="number" 
+                      value={editForm.amount} 
+                      onChange={e => setEditForm({...editForm, amount: Number(e.target.value)})}
+                      className="p-2 border border-blue-200 rounded text-sm focus:outline-none focus:border-blue-400"
+                      placeholder="金額"
+                    />
+                    <select 
+                      value={editForm.payer} 
+                      onChange={e => setEditForm({...editForm, payer: e.target.value})}
+                      className="p-2 border border-blue-200 rounded text-sm bg-white focus:outline-none focus:border-blue-400"
+                    >
+                       <option value="爸爸">爸爸</option>
+                       <option value="媽媽">媽媽</option>
+                       <option value="公費">公費</option>
+                    </select>
+                    <div className="col-span-2 flex gap-1 overflow-x-auto pb-1 pt-1">
+                      {['food', 'transport', 'stay', 'play', 'other'].map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setEditForm({...editForm, category: cat as any})}
+                          className={`px-2 py-1 rounded-md text-xs whitespace-nowrap border ${
+                            editForm.category === cat 
+                              ? 'bg-blue-600 text-white border-blue-600' 
+                              : 'bg-white text-gray-500 border-gray-200'
+                          }`}
+                        >
+                          {getCategoryLabel(cat)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-1">
+                     <button 
+                      onClick={() => saveEdit(expense.id)}
+                      className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
+                    >
+                      <Save className="w-4 h-4" /> 儲存修改
+                    </button>
+                    <button 
+                      onClick={() => removeExpense(expense.id)}
+                      className="px-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 flex items-center justify-center"
+                      title="刪除"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-gray-900 font-mono text-lg">
-                  ${expense.amount.toLocaleString()}
-                </span>
-                <button 
-                  onClick={() => removeExpense(expense.id)}
-                  className="text-gray-300 hover:text-red-500 p-1"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              ) : (
+                // --- View Mode ---
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getCategoryColor(expense.category)}`}>
+                      {expense.category === 'food' && <Coffee className="w-5 h-5" />}
+                      {expense.category === 'transport' && <Car className="w-5 h-5" />}
+                      {expense.category === 'stay' && <Moon className="w-5 h-5" />}
+                      {expense.category === 'play' && <Camera className="w-5 h-5" />}
+                      {expense.category === 'other' && <Wallet className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900">{expense.title}</div>
+                      <div className="text-xs text-gray-500 flex gap-2">
+                        <span>{expense.date}</span>
+                        <span>•</span>
+                        <span>{expense.payer}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-gray-900 font-mono text-lg">
+                      ${expense.amount.toLocaleString()}
+                    </span>
+                    <button 
+                      onClick={() => startEdit(expense)}
+                      className="text-gray-300 hover:text-blue-500 p-1"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}
