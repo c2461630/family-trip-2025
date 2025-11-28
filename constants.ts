@@ -1,5 +1,5 @@
 
-import { DayPlan, ActivityType, DeploymentStep, Accommodation } from './types';
+import { DayPlan, ActivityType, DeploymentStep, Accommodation, PackingCategory } from './types';
 
 // ==========================================
 // 🔥 FIREBASE 設定區
@@ -250,29 +250,106 @@ export const ACCOMMODATION_DATA: Accommodation[] = [
     date: "12/10 (週三)", 
     name: "宜蘭住宿 (待定)", 
     location: "宜蘭縣礁溪鄉", 
-    note: "建議選擇礁溪溫泉區" 
+    note: "建議選擇礁溪溫泉區",
+    checkIn: "15:00",
+    checkOut: "11:00",
+    bookingId: "尚未預訂"
   },
   { 
     id: 2, 
     date: "12/11 (週四)", 
     name: "花蓮市區住宿 (待定)", 
     location: "花蓮縣花蓮市", 
-    note: "建議靠近東大門夜市" 
+    note: "建議靠近東大門夜市",
+    checkIn: "15:00",
+    checkOut: "11:00",
+    bookingId: "尚未預訂" 
   },
   { 
     id: 3, 
     date: "12/12 (週五)", 
     name: "花蓮市區住宿 (續住)", 
     location: "花蓮縣花蓮市", 
-    note: "同前一晚" 
+    note: "同前一晚",
+    checkIn: "15:00",
+    checkOut: "11:00",
+    bookingId: "尚未預訂"
   },
   { 
     id: 4, 
     date: "12/13 (週六)", 
     name: "台東池上住宿 (待定)", 
     location: "台東縣池上鄉", 
-    note: "建議靠近伯朗大道或火車站" 
+    note: "建議靠近伯朗大道或火車站",
+    checkIn: "15:00",
+    checkOut: "11:00",
+    bookingId: "尚未預訂"
   },
+];
+
+export const DEFAULT_PACKING_LIST: PackingCategory[] = [
+  {
+    id: 'docs',
+    title: '重要證件與現金',
+    items: [
+      { id: 'd1', text: '身分證 / 健保卡 (全家)', checked: false },
+      { id: 'd2', text: '現金 (夜市、小吃)', checked: false },
+      { id: 'd3', text: '信用卡 / 悠遊卡', checked: false },
+      { id: 'd4', text: '駕照 (租車用)', checked: false },
+    ]
+  },
+  {
+    id: 'tech',
+    title: '3C 與電器',
+    items: [
+      { id: 't1', text: '手機充電器 / 線', checked: false },
+      { id: 't2', text: '行動電源', checked: false },
+      { id: 't3', text: '自拍棒 / 腳架', checked: false },
+      { id: 't4', text: '車用充電器', checked: false },
+    ]
+  },
+  {
+    id: 'clothes',
+    title: '衣物 (5天4夜)',
+    items: [
+      { id: 'c1', text: '換洗衣物 (5套+備用)', checked: false },
+      { id: 'c2', text: '睡衣 / 居家服', checked: false },
+      { id: 'c3', text: '薄外套 / 防風外套', checked: false },
+      { id: 'c4', text: '好走的鞋子 / 拖鞋', checked: false },
+      { id: 'c5', text: '泳衣 / 泳帽 (泡溫泉)', checked: false },
+    ]
+  },
+  {
+    id: 'toiletries',
+    title: '盥洗與保養',
+    items: [
+      { id: 'b1', text: '牙刷 / 牙膏', checked: false },
+      { id: 'b2', text: '毛巾 / 浴巾 (備用)', checked: false },
+      { id: 'b3', text: '洗面乳 / 保養品', checked: false },
+      { id: 'b4', text: '刮鬍刀', checked: false },
+    ]
+  },
+  {
+    id: 'kids',
+    title: '親子必備',
+    items: [
+      { id: 'k1', text: '安撫玩具 / 玩偶', checked: false },
+      { id: 'k2', text: '防蚊液 / 止癢膏', checked: false },
+      { id: 'k3', text: '乾洗手 / 濕紙巾', checked: false },
+      { id: 'k4', text: '水壺', checked: false },
+      { id: 'k5', text: '車上零食', checked: false },
+    ]
+  },
+  {
+    id: 'meds',
+    title: '常備藥品',
+    items: [
+      { id: 'm1', text: '暈車藥', checked: false },
+      { id: 'm2', text: '腸胃藥', checked: false },
+      { id: 'm3', text: '感冒藥 / 退燒藥', checked: false },
+      { id: 'm4', text: 'OK繃 / 外傷藥', checked: false },
+    ]
+  }
 ];
 
 export const DEPLOYMENT_STEPS: DeploymentStep[] = [
