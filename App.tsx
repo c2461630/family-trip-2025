@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, CheckCircle, Smartphone, Navigation,
   Sun, Cloud, CloudRain, Wind, Plus, Trash2, Wallet, PieChart,
   CloudLightning, WifiOff, Pencil, Save, X, BedDouble,
-  Luggage, CheckSquare, Square, Briefcase, Shirt, Plug, Baby, Pill, User
+  Luggage, CheckSquare, Square, Briefcase, Shirt, Plug, Baby, Pill, User, Map
 } from 'lucide-react';
 import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG, ACCOMMODATION_DATA, DEFAULT_PACKING_LIST } from './constants';
 import { Activity, ActivityType, DayPlan, WeatherInfo, Expense, PackingCategory } from './types';
@@ -128,11 +128,36 @@ const ActivityItem: React.FC<{ activity: Activity; isLast: boolean }> = ({ activ
 const DayCard: React.FC<{ day: DayPlan }> = ({ day }) => {
   const [isOpen, setIsOpen] = useState(true);
 
+  // Function to open Google Maps with all waypoints for the day
+  // Note: We use Google Maps for the "Overview" because Apple Maps web links don't reliably support multi-stop waypoints.
+  // Individual navigation buttons still use Apple Maps.
+  const openDailyRoute = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent toggling the card
+    const locations = day.activities
+      .filter(a => a.location)
+      .map(a => a.location);
+
+    if (locations.length < 2) {
+      alert("今日行程景點不足，無法規劃路線。");
+      return;
+    }
+
+    const origin = encodeURIComponent(locations[0]!);
+    const destination = encodeURIComponent(locations[locations.length - 1]!);
+    
+    // Middle points
+    const waypoints = locations.slice(1, -1).map(l => encodeURIComponent(l!)).join('|');
+
+    window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`, '_blank');
+  };
+
+  const hasRoute = day.activities.filter(a => a.location).length >= 2;
+
   return (
     <div className="mb-6 last:mb-0">
-      <button 
+      <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md"
+        className="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer"
       >
         <div className={`p-4 ${isOpen ? 'bg-blue-600' : 'bg-white'} transition-colors duration-300`}>
           <div className="flex items-center justify-between">
@@ -165,14 +190,25 @@ const DayCard: React.FC<{ day: DayPlan }> = ({ day }) => {
           </div>
           
           {isOpen && (
-            <div className="mt-3 pt-3 border-t border-white/20 text-left">
+            <div className="mt-3 pt-3 border-t border-white/20 text-left flex justify-between items-center">
               <span className="inline-block px-2 py-1 rounded bg-white/20 text-xs text-white backdrop-blur-sm">
                 今日重點：{day.theme}
               </span>
+              
+              {hasRoute && (
+                <button 
+                  onClick={openDailyRoute}
+                  className="flex items-center gap-1 px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold hover:bg-yellow-300 transition-colors shadow-sm"
+                  title="在地圖上查看今日整日路線順序"
+                >
+                  <Map className="w-3 h-3" />
+                  查看今日路線
+                </button>
+              )}
             </div>
           )}
         </div>
-      </button>
+      </div>
 
       {isOpen && (
         <div className="mt-4 px-2">
