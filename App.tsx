@@ -558,8 +558,9 @@ const ExpenseTracker = () => {
     const updatedData = {
       title: editForm.title,
       amount: Number(editForm.amount),
-      category: editForm.category,
-      payer: editForm.payer,
+      // Fix: Type assertion to tell TS we know what we are doing
+      category: editForm.category as Expense['category'],
+      payer: editForm.payer as string,
     };
 
     if (isFirebaseMode && fbFunctions) {
@@ -645,7 +646,7 @@ const ExpenseTracker = () => {
              </div>
              {/* Category Viz */}
              <div className="flex h-2 rounded-full overflow-hidden bg-white/20">
-                {Object.entries(statsByCategory).map(([cat, amount], idx) => (
+                {Object.entries(statsByCategory).map(([cat, amount]) => (
                   <div 
                     key={cat} 
                     style={{ width: `${(amount / totalAmount) * 100}%` }}
