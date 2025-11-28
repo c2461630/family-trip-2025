@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MapPin, Coffee, Car, Moon, Camera, Info, ExternalLink, 
   ChevronDown, ChevronUp, CheckCircle, Smartphone, Navigation,
@@ -8,7 +8,7 @@ import {
   Luggage, CheckSquare, Square, Briefcase, Shirt, Plug, Baby, Pill, User
 } from 'lucide-react';
 import { TRIP_DATA, DEPLOYMENT_STEPS, FIREBASE_CONFIG, ACCOMMODATION_DATA, DEFAULT_PACKING_LIST } from './constants';
-import { Activity, ActivityType, DayPlan, WeatherInfo, Expense, Accommodation, PackingCategory } from './types';
+import { Activity, ActivityType, DayPlan, WeatherInfo, Expense, PackingCategory } from './types';
 
 // We will load these dynamically to avoid build errors
 // import { initializeApp } from 'firebase/app';
@@ -427,7 +427,7 @@ const DeploymentGuide = () => {
 
 const ExpenseTracker = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [newItem, setNewItem] = useState({ title: '', amount: '', category: 'food', payer: '爸爸' });
+  const [newItem, setNewItem] = useState<{title: string, amount: string, category: Expense['category'], payer: string}>({ title: '', amount: '', category: 'food', payer: '爸爸' });
   const [isFirebaseMode, setIsFirebaseMode] = useState(false);
   const [fbFunctions, setFbFunctions] = useState<any>(null);
 
@@ -552,7 +552,8 @@ const ExpenseTracker = () => {
   };
 
   const saveEdit = async (id: string) => {
-    if (!editForm.title || !editForm.amount) return;
+    // Strict check to ensure all required fields are present
+    if (!editForm.title || !editForm.amount || !editForm.category || !editForm.payer) return;
 
     const updatedData = {
       title: editForm.title,
@@ -704,7 +705,7 @@ const ExpenseTracker = () => {
               <button
                 key={cat}
                 type="button"
-                onClick={() => setNewItem({...newItem, category: cat})}
+                onClick={() => setNewItem({...newItem, category: cat as Expense['category']})}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
                   newItem.category === cat 
                     ? 'bg-gray-800 text-white' 
@@ -789,7 +790,7 @@ const ExpenseTracker = () => {
                       {['food', 'transport', 'stay', 'play', 'other'].map(cat => (
                         <button
                           key={cat}
-                          onClick={() => setEditForm({...editForm, category: cat as any})}
+                          onClick={() => setEditForm({...editForm, category: cat as Expense['category']})}
                           className={`px-3 py-1.5 rounded-md text-xs whitespace-nowrap border font-medium ${
                             editForm.category === cat 
                               ? 'bg-blue-600 text-white border-blue-600' 
