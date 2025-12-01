@@ -62,16 +62,16 @@ export const TRIP_DATA: DayPlan[] = [
       {
         time: "18:30",
         title: "飯店 Check-in",
-        description: "入住礁溪或宜蘭市。推薦：捷絲旅、寒沐或長榮鳳凰 (都有親子遊戲室)。",
+        description: "入住山口溫泉飯店。位於礁溪熱鬧區域，吃飯購物都方便。",
         type: ActivityType.Hotel,
-        location: "礁溪溫泉"
+        location: "山口溫泉飯店"
       },
       {
         time: "19:30",
         title: "晚餐",
-        description: "建議飯店附近簡單吃，或叫外送進飯店，早點休息迎接明天的花東行。",
+        description: "飯店附近簡單吃，或叫外送進飯店，早點休息迎接明天的花東行。",
         type: ActivityType.Food,
-        location: "礁溪老街"
+        location: "礁溪路五段"
       }
     ]
   },
@@ -79,7 +79,7 @@ export const TRIP_DATA: DayPlan[] = [
     id: 2,
     date: "12/11",
     weekday: "週四",
-    route: "宜蘭 ➔ 花蓮",
+    route: "宜蘭 ➔ 花蓮 (宿新城)",
     theme: "蘇花改與海洋風光",
     weather: { type: 'cloudy', temp: "20-24°C", desc: "舒適，海邊風大" },
     activities: [
@@ -114,21 +114,21 @@ export const TRIP_DATA: DayPlan[] = [
       {
         time: "15:40",
         title: "華東牧場",
-        description: "🛒推車OK｜草地與泥土路，推車可行但稍微費力。可以近距離餵小動物。",
+        description: "🛒推車OK｜就在七星潭旁。草地與泥土路，推車可行但稍微費力。可以近距離餵小動物。",
         type: ActivityType.Activity,
         location: "華東牧場"
       },
       {
-        time: "17:00",
-        title: "飯店 Check-in",
-        description: "入住花蓮市區。確認消毒鍋位置。",
+        time: "17:30",
+        title: "民宿 Check-in",
+        description: "入住七星潭星海民宿。就在七星潭旁，非常順路，不用進市區塞車。",
         type: ActivityType.Hotel,
-        location: "花蓮市區"
+        location: "七星潭星海民宿"
       },
       {
         time: "18:30",
-        title: "晚餐：東大門夜市",
-        description: "🛒推車OK｜路面非常寬敞平坦，對推車很友善！建議早點去(18:00)避開尖峰人潮。",
+        title: "晚餐：東大門夜市 (開車前往)",
+        description: "🛒推車OK｜開車約15-20分鐘。路面寬敞平坦，建議早點去(18:00)避開尖峰人潮。",
         type: ActivityType.Food,
         location: "東大門夜市"
       }
@@ -165,15 +165,15 @@ export const TRIP_DATA: DayPlan[] = [
       },
       {
         time: "16:00",
-        title: "知卡宣親水公園 (或回飯店)",
-        description: "🛒推車OK｜如果小孩還不想睡，可以去公園散步；如果累了就直接回飯店休息。",
+        title: "知卡宣親水公園 (或回民宿)",
+        description: "🛒推車OK｜如果小孩還不想睡，可以去公園散步；如果累了就回七星潭民宿休息。",
         type: ActivityType.Rest,
         location: "知卡宣親水公園"
       },
       {
         time: "18:30",
-        title: "晚餐：外帶回飯店",
-        description: "推薦：公正包子(排隊久建議先打電話或外送)、液香扁食。在飯店吃爸媽比較輕鬆。",
+        title: "晚餐",
+        description: "推薦：公正包子(排隊久建議先打電話或外送)、液香扁食。",
         type: ActivityType.Food,
         location: "花蓮市區"
       }
@@ -183,8 +183,8 @@ export const TRIP_DATA: DayPlan[] = [
     id: 4,
     date: "12/13",
     weekday: "週六",
-    route: "花蓮市 ➔ 瑞穗",
-    theme: "縱谷放電，森林深呼吸",
+    route: "花蓮 ➔ 台東市",
+    theme: "縱谷放電，移動至台東",
     weather: { type: 'sunny', temp: "22-26°C", desc: "陽光普照" },
     activities: [
       {
@@ -217,10 +217,16 @@ export const TRIP_DATA: DayPlan[] = [
       },
       {
         time: "18:00",
-        title: "瑞穗溫泉住宿",
-        description: "瑞穗很多溫泉民宿房間內就有大浴池，全家一起泡湯很方便。",
+        title: "前往台東市 (芭涵漢)",
+        description: "車程約 1.5 - 2 小時。直奔台東市區住宿。",
+        type: ActivityType.Drive,
+      },
+      {
+        time: "19:30",
+        title: "民宿 Check-in",
+        description: "入住芭涵漢民宿。晚上可去台東市區或鐵花村走走。",
         type: ActivityType.Hotel,
-        location: "瑞穗溫泉"
+        location: "芭涵漢民宿"
       }
     ]
   },
@@ -228,14 +234,14 @@ export const TRIP_DATA: DayPlan[] = [
     id: 5,
     date: "12/14",
     weekday: "週日",
-    route: "瑞穗 ➔ 池上 ➔ 台南",
+    route: "台東市 ➔ 池上 ➔ 台南",
     theme: "最後的稻浪，回家之路",
     weather: { type: 'sunny', temp: "23-27°C", desc: "注意防曬" },
     activities: [
       {
         time: "09:00",
         title: "前往台東池上",
-        description: "車程約1小時，剛好讓小孩小睡回籠覺。",
+        description: "往北開約 50 分鐘。雖然稍微回頭，但去伯朗大道很值得。",
         type: ActivityType.Drive,
       },
       {
@@ -255,7 +261,7 @@ export const TRIP_DATA: DayPlan[] = [
       {
         time: "14:00",
         title: "回程：南迴公路",
-        description: "這段山路較多彎道，容易暈車。建議上山前先確認2歲半小孩是否睡著，或準備防暈措施。",
+        description: "經台9線(花東縱谷)接南迴公路回台南。這段山路較多彎道，容易暈車，建議上山前確認2歲半小孩狀態。",
         type: ActivityType.Drive,
       },
       {
@@ -280,9 +286,9 @@ export const ACCOMMODATION_DATA: Accommodation[] = [
   { 
     id: 1, 
     date: "12/10 (週三)", 
-    name: "宜蘭住宿 (待定)", 
-    location: "宜蘭縣礁溪鄉", 
-    note: "建議選擇礁溪溫泉區",
+    name: "山口溫泉飯店", 
+    location: "宜蘭縣礁溪鄉五峰路2號", 
+    note: "位於礁溪溫泉區，交通便利",
     checkIn: "15:00",
     checkOut: "11:00",
     bookingId: "尚未預訂"
@@ -290,9 +296,9 @@ export const ACCOMMODATION_DATA: Accommodation[] = [
   { 
     id: 2, 
     date: "12/11 (週四)", 
-    name: "花蓮市區住宿 (待定)", 
-    location: "花蓮縣花蓮市", 
-    note: "建議靠近東大門夜市",
+    name: "七星潭星海民宿", 
+    location: "花蓮縣新城鄉七星街79巷12號", 
+    note: "近七星潭博物館旁停車場，可包棟",
     checkIn: "15:00",
     checkOut: "11:00",
     bookingId: "尚未預訂" 
@@ -300,9 +306,9 @@ export const ACCOMMODATION_DATA: Accommodation[] = [
   { 
     id: 3, 
     date: "12/12 (週五)", 
-    name: "花蓮市區住宿 (續住)", 
-    location: "花蓮縣花蓮市", 
-    note: "同前一晚",
+    name: "七星潭星海民宿 (續住)", 
+    location: "花蓮縣新城鄉七星街79巷12號", 
+    note: "續住第二晚",
     checkIn: "15:00",
     checkOut: "11:00",
     bookingId: "尚未預訂"
@@ -310,9 +316,9 @@ export const ACCOMMODATION_DATA: Accommodation[] = [
   { 
     id: 4, 
     date: "12/13 (週六)", 
-    name: "花蓮瑞穗住宿 (待定)", 
-    location: "花蓮縣瑞穗鄉", 
-    note: "建議選擇溫泉飯店或民宿",
+    name: "芭涵漢民宿", 
+    location: "台東市吉泰路599巷25號", 
+    note: "位於台東市，方便隔日行程",
     checkIn: "15:00",
     checkOut: "11:00",
     bookingId: "尚未預訂"
